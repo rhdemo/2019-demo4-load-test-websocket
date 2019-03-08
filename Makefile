@@ -1,6 +1,3 @@
-
-
-
 ENV_FILE := .env
 include ${ENV_FILE}
 export $(shell sed 's/=.*//' ${ENV_FILE})
@@ -8,6 +5,10 @@ export $(shell sed 's/=.*//' ${ENV_FILE})
 
 oc_login:
 	${OC} login ${OC_URL} -u ${OC_USER} -p ${OC_PASSWORD} --insecure-skip-tls-verify=true
+
+create-image:
+	cd docker/
+	docker build . -t quay.io/redhatdemo/demo4-load-test-websocket:latest
 
 deploy-load-test: oc_login
     oc new-project demo4-load-test
