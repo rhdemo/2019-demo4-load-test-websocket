@@ -1,8 +1,10 @@
 from node
 
-RUN npm install -g artillery
+RUN npm install -g artillery --ignore-scripts
 
-ADD load-user . 
+COPY load-user load-user/
+
+USER root
 
 RUN cd load-user
 

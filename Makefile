@@ -7,12 +7,19 @@ oc_login:
 	${OC} login ${OC_URL} -u ${OC_USER} -p ${OC_PASSWORD} --insecure-skip-tls-verify=true
 
 create-image:
-	cd docker/
-	docker build . -t quay.io/redhatdemo/demo4-load-test-websocket:latest
+	@echo Create Image
+	cd docker/ && docker build . -t quay.io/redhatdemo/demo4-load-test-websocket:latest
+
+push-image:
+	@echo Push Image
+	docker push quay.io/redhatdemo/demo4-load-test-websocket:latest
+
 
 deploy-load-test: oc_login
-    oc new-project demo4-load-test
+	@echo Deploying Load Test
+	oc new-project demo4-load-test
 	oc process -f openshift/deployment --param DURATION=${DURATION} --param USERS_PER_POD=${USERS_PER_POD} --param REPLICAS=${REPLICAS} --param SOCKET_ADDRESS=${SOCKET_ADDRESS} | oc create -f - 
 
 remove-load-test: oc_login
+	@echo Removing Load Test
 	oc delete project demo4-load-test
