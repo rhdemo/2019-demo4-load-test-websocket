@@ -10,18 +10,17 @@ parameters:
     required: true
 
   - name: DURATION
-    value: 100
+    value: '100'
     description: Duration of Load Test
     required: true
 
-
   - name: USERS_PER_POD
-    value: 1
+    value: '1' 
     description: Number of Virtual Users per pod
     required: true
 
   - name: REPLICAS
-    value: 1
+    value: '1'
     description: Number of Replicas of Load Test
     required: true
 

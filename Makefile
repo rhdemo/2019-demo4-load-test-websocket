@@ -15,11 +15,11 @@ push-image:
 	docker push quay.io/redhatdemo/demo4-load-test-websocket:latest
 
 
-deploy-load-test: oc_login
+deploy-load-test: oc_login remove-load-test
 	@echo Deploying Load Test
 	oc new-project demo4-load-test
-	oc process -f openshift/deployment --param DURATION=${DURATION} --param USERS_PER_POD=${USERS_PER_POD} --param REPLICAS=${REPLICAS} --param SOCKET_ADDRESS=${SOCKET_ADDRESS} | oc create -f - 
+	oc process -f openshift/deployment.yml --param DURATION=${DURATION} --param USERS_PER_POD=${USERS_PER_POD} --param REPLICAS=${REPLICAS} --param SOCKET_ADDRESS=${SOCKET_ADDRESS} | oc create -f - 
 
 remove-load-test: oc_login
 	@echo Removing Load Test
-	oc delete project demo4-load-test
+	oc delete project demo4-load-test --ignore-not-found=true
