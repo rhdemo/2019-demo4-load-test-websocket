@@ -1,11 +1,13 @@
 from node
 
-RUN npm install -g artillery --ignore-scripts
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH=$PATH:/home/node/.npm-global/bin
+
 VOLUME /artillery
 
 COPY load-user/ load-user/
 
 WORKDIR load-user/
 
-ENTRYPOINT ["artillery"]
+ENTRYPOINT ["./node_modules/artillery/bin/artillery"]
 CMD ["run", "test2.yaml"]

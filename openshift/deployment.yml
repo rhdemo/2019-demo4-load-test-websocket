@@ -14,7 +14,7 @@ parameters:
     description: Duration of Load Test
     required: true
 
-  - name: USERS_PER_POD
+  - name: USERS
     value: '1' 
     description: Number of Virtual Users per pod
     required: true
@@ -69,19 +69,19 @@ objects:
               env:
               - name: USERS
                 valueFrom:
-                configMapKeyRef:
-                  name: load-configmap
-                  key: users
+                  configMapKeyRef:
+                    name: load-configmap
+                    key: users
               - name: SOCKET_ADDRESS
                 valueFrom:
-                configMapKeyRef:
-                  name: load-configmap
-                  key: socket_address
+                  configMapKeyRef:
+                    name: load-configmap
+                    key: socket_address
               - name: DURATION
                 valueFrom:
-                configMapKeyRef:
-                  name: load-configmap
-                  key: duration
+                  configMapKeyRef:
+                    name: load-configmap
+                    key: duration
                 
               
       triggers:
