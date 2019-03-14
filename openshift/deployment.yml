@@ -41,7 +41,7 @@ objects:
     data:
       duration: "${DURATION}"
       socket_address: "${SOCKET_ADDRESS}"
-      users: "${USERS_PER_POD}"
+      users: "${USERS}"
 
   - apiVersion: v1
     kind: DeploymentConfig

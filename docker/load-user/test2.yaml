@@ -7,5 +7,7 @@ config:
 scenarios:
     - engine: "ws"
       flow:
+       - think: 3
        - function: "gameMock"
        - send: "{{ data }}"
+       - think: 1

@@ -1,11 +1,11 @@
 from node
 
 RUN npm install -g artillery --ignore-scripts
+VOLUME /artillery
 
-COPY load-user load-user/
+COPY load-user/ load-user/
 
-USER root
+WORKDIR load-user/
 
-RUN cd load-user
-
-CMD [ "artillery run test.yaml" ]
+ENTRYPOINT ["artillery"]
+CMD ["run", "test2.yaml"]
