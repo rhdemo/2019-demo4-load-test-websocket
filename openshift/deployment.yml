@@ -19,11 +19,6 @@ parameters:
     description: Number of Virtual Users per pod
     required: true
 
-  - name: REPLICAS
-    value: '1'
-    description: Number of Replicas of Load Test
-    required: true
-
   - name: SOCKET_ADDRESS
     value: 'ws://'
     required: true
@@ -43,20 +38,11 @@ objects:
       socket_address: "${SOCKET_ADDRESS}"
       users: "${USERS}"
 
-  - apiVersion: v1
-    kind: DeploymentConfig
+  - apiVersion: batch/v1
+    kind: Job
     metadata:
-      labels:
-        app: ${APPLICATION_NAME}
-      name: ${APPLICATION_NAME}
+      generateName: ${APPLICATION_NAME}-
     spec:
-      replicas: ${REPLICAS}
-      selector:
-        app: ${APPLICATION_NAME}
-      strategy:
-        rollingParams:
-          timeoutSeconds: 3600
-        type: Rolling
       template:
         metadata:
           labels:
@@ -82,7 +68,4 @@ objects:
                   configMapKeyRef:
                     name: load-configmap
                     key: duration
-                
-              
-      triggers:
-        - type: ConfigChange
+              restartPolicy: OnFailure
