@@ -17,7 +17,22 @@ make oc_login
 ```
 
 ## Deploy
-After create an .env file, you can deploy with the following command:
+After create an .env file, you can create the project with the following command on openshift:
+
+
+```bash
+oc new-project demo4-load-test
+
+```
+
+if you have the project just use:
+
+```bash
+oc project demo4-load-test
+
+```
+
+then you can deploy with the following command:
 
 ```bash
 deploy-load-test
