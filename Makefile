@@ -18,7 +18,7 @@ push-image:
 deploy-load-test: oc_login remove-load-test
 	@echo Deploying Load Test
 	oc new-project demo4-load-test
-	oc process -f openshift/deployment.yml --param DURATION=${DURATION} --param USERS=${USERS} --param REPLICAS=${REPLICAS} --param SOCKET_ADDRESS=${SOCKET_ADDRESS} | oc create -f - 
+	oc process -f openshift/deployment.yml --param DURATION=${DURATION} --param USERS=${USERS} --param SOCKET_ADDRESS=${SOCKET_ADDRESS} | oc create -f - 
 
 remove-load-test: oc_login
 	@echo Removing Load Test
