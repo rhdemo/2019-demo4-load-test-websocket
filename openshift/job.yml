@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   namespace: {{ namespace }}
-  name: "demo4-load-test-websocket-{{ ansible_date_time.iso8601_micro | to_uuid }}"
+  name: "demo4-load-test-websocket-{{  999999999999999999999 | random | to_uuid | hash('md5')  }}"
 spec:
   template:
     metadata:

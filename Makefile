@@ -16,15 +16,15 @@ push-image:
 
 
 deploy-load-tester: oc_login
-	@echo Deploying Job for Load Test	
+	@echo Deploying Jobs for Load Test	
 	ansible-playbook openshift/playbook.yml -e users=${USERS} -e namespace=${NAMESPACE} -e duration=${DURATION} -e image=${IMAGE} -e replicas=${REPLICAS} -e ws_address=${SOCKET_ADDRESS} -v
 
 clean-namespace: oc_login
-	@echo Removing Load Test
+	@echo Removing Load Test Assets
 	oc delete pods all -n ${NAMESPACE} --ignore-not-found=true
-	oc process -f openshift/configmap.yml | oc delete -f -  --ignore-not-found=true -n ${NAMESPACE}
-
+	oc delete job --all -n ${NAMESPACE} --ignore-not-found=true
+	oc delete configmap load-configmap -n ${NAMESPACE} --ignore-not-found=true
 
 delete-namespace: oc_login
-	@echo Removing Load Test
+	@echo Removing Load Test Namespaces
 	oc delete project ${NAMESPACE} --ignore-not-found=true

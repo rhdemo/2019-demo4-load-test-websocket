@@ -2,6 +2,8 @@
 
 This repo contains load test for testing the websocket.
 
+It requires ansible to run it
+
 ## Setup
 
 Create a `.env` file with all the required environment variables. An example env file [.env.example](.env.example) is included.
@@ -18,21 +20,6 @@ make oc_login
 
 ## Deploy
 After create an .env file, you can create the project with the following command on openshift:
-
-
-```bash
-oc new-project demo4-load-test
-
-```
-
-if you have the project just use:
-
-```bash
-oc project demo4-load-test
-
-```
-
-then you can deploy with the following command:
 
 ```bash
 deploy-load-test

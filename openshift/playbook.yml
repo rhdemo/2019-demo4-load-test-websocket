@@ -15,7 +15,8 @@
         state: present
         definition: "{{ lookup('template', 'configmap.yml') }}"
 
-    - name: Create Deployment
+    - name: Create Jobs
       k8s:
         state: present
-        definition: "{{ lookup('template', 'deployment.yml') }}"
+        definition: "{{ lookup('template', 'job.yml') }}"
+      with_sequence: start=1 end={{ replicas }}
