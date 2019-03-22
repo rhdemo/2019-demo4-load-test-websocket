@@ -1,0 +1,21 @@
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Create Websocket Load Test namespace
+      k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ namespace }}"
+        state: present
+
+    
+    - name: Create Configmap
+      k8s:
+        state: present
+        definition: "{{ lookup('template', 'configmap.yml') }}"
+
+    - name: Create Deployment
+      k8s:
+        state: present
+        definition: "{{ lookup('template', 'deployment.yml') }}"

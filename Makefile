@@ -12,13 +12,19 @@ create-image:
 
 push-image:
 	@echo Push Image
-	docker push quay.io/redhatdemo/demo4-load-test-websocket:latest
+	docker push quay.io/redhatdemo/demo4-load-test-websocket:reduced
 
 
-deploy-load-test: oc_login
-	@echo Deploying Load Test
-	oc process -f openshift/deployment.yml --param DURATION=${DURATION} --param USERS=${USERS} --param SOCKET_ADDRESS=${SOCKET_ADDRESS} | oc create -f - 
+deploy-load-tester: oc_login
+	@echo Deploying Job for Load Test	
+	ansible-playbook openshift/playbook.yml -e users=${USERS} -e namespace=${NAMESPACE} -e duration=${DURATION} -e image=${IMAGE} -e replicas=${REPLICAS} -e ws_address=${SOCKET_ADDRESS} -v
 
-remove-load-test: oc_login
+clean-namespace: oc_login
 	@echo Removing Load Test
-	oc delete project demo4-load-test --ignore-not-found=true
+	oc delete pods all -n ${NAMESPACE} --ignore-not-found=true
+	oc process -f openshift/configmap.yml | oc delete -f -  --ignore-not-found=true -n ${NAMESPACE}
+
+
+delete-namespace: oc_login
+	@echo Removing Load Test
+	oc delete project ${NAMESPACE} --ignore-not-found=true

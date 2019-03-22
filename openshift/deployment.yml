@@ -1,71 +1,32 @@
-apiVersion: v1
-kind: Template
-
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: demo4-load-test-websocket
-
-parameters:
-  - name: APPLICATION_NAME
-    value: demo4-load-test-websocket
-    required: true
-
-  - name: DURATION
-    value: '100'
-    description: Duration of Load Test
-    required: true
-
-  - name: USERS
-    value: '1' 
-    description: Number of Virtual Users per pod
-    required: true
-
-  - name: SOCKET_ADDRESS
-    value: 'ws://'
-    required: true
-  
-  - name: IMAGE_REPOSITORY
-    displayName: Image Repository (quay.io/user/demo4-load-test-websocket:latest)
-    value: quay.io/redhatdemo/demo4-load-test-websocket:latest
-    required: true
-
-objects:
-  - apiVersion: v1
-    kind: ConfigMap
+  namespace: {{ namespace }}
+  name: "demo4-load-test-websocket-{{ ansible_date_time.iso8601_micro | to_uuid }}"
+spec:
+  template:
     metadata:
-      name: load-configmap
-    data:
-      duration: "${DURATION}"
-      socket_address: "${SOCKET_ADDRESS}"
-      users: "${USERS}"
-
-  - apiVersion: batch/v1
-    kind: Job
-    metadata:
-      generateName: ${APPLICATION_NAME}-
+      labels:
+        app: demo4-load-test-websocket
     spec:
-      template:
-        metadata:
-          labels:
-            app: ${APPLICATION_NAME}
-        spec:
-          containers:
-            - image: ${IMAGE_REPOSITORY}
-              imagePullPolicy: Always
-              name: ${APPLICATION_NAME}
-              env:
-              - name: USERS
-                valueFrom:
-                  configMapKeyRef:
-                    name: load-configmap
-                    key: users
-              - name: SOCKET_ADDRESS
-                valueFrom:
-                  configMapKeyRef:
-                    name: load-configmap
-                    key: socket_address
-              - name: DURATION
-                valueFrom:
-                  configMapKeyRef:
-                    name: load-configmap
-                    key: duration
-          restartPolicy: OnFailure
+      containers:
+        - image: {{ image }}
+          imagePullPolicy: Always
+          name: demo4-load-test-websocket
+          env:
+          - name: USERS
+            valueFrom:
+              configMapKeyRef:
+                name: load-configmap
+                key: users
+          - name: SOCKET_ADDRESS
+            valueFrom:
+              configMapKeyRef:
+                name: load-configmap
+                key: socket_address
+          - name: DURATION
+            valueFrom:
+              configMapKeyRef:
+                name: load-configmap
+                key: duration
+      restartPolicy: OnFailure

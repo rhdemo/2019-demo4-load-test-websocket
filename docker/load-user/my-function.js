@@ -2,7 +2,7 @@ module.exports = { gameMock };
 var nanoid = require('nanoid')
 var jsonfile = require('jsonfile')
 const uuidv1 = require('uuid/v1');
-const file = 'sample.json'
+const file = 'reduce-sample.json'
 var gesture;
 
 
