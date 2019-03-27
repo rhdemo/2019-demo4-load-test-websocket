@@ -4,6 +4,15 @@ This repo contains load test for testing the websocket.
 
 It requires ansible to run it
 
+```bash
+# Installing Dependencies Needed on Fedora (Use your distribution package manager [apt, pacman, yum or zypper])
+sudo dnf install ansible python-pip
+
+
+# Install the openshift python client library
+sudo dnf install python3-openshift
+```bash
+
 ## Setup
 
 Create a `.env` file with all the required environment variables. An example env file [.env.example](.env.example) is included.

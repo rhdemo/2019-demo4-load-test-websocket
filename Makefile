@@ -8,6 +8,7 @@ oc_login:
 
 create-image:
 	@echo Create Image
+	cd docker/load-user && npm install -i && cd ../../
 	cd docker/ && docker build . -t ${IMAGE}
 
 push-image:
