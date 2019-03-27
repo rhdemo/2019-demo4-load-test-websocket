@@ -7,10 +7,12 @@ var gesture;
 
 
 function gameMock(userContext, events, done) {
-  gesture = jsonfile.readFileSync(file)
-
-  gesture['playerID'] = uuidv1()
-  gesture['uuid'] = nanoid()
+  gesture = {}
+  gesture['type'] = "load-test";
+  gesture['machineId'] = Math.floor(Math.random() * Math.floor(10));
+  gesture['sensorId'] = uuidv1();
+  gesture['vibrationClass'] = "kafka-test";
+  gesture['confidence'] = Math.floor(Math.random() * Math.floor(100));
 
 
   // set the "data" variable for the virtual user to use in the subsequent action
