@@ -10,4 +10,4 @@ COPY load-user/ load-user/
 WORKDIR load-user/
 
 ENTRYPOINT ["./node_modules/artillery/bin/artillery"]
-CMD ["run", "test2.yaml"]
+CMD ["run", "game.yaml"]

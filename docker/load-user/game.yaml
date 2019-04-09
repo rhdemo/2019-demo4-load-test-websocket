@@ -1,0 +1,14 @@
+config:
+    target: "{{ $processEnvironment.SOCKET_ADDRESS }}"
+    processor: "./game-logic.js"
+    phases:
+      - duration: "{{ $processEnvironment.DURATION }}"
+        arrivalRate: "{{ $processEnvironment.USERS }}"
+scenarios:
+    - engine: "ws"
+      flow:
+       - send:
+          type: "connection" 
+       - function: "gameMock"
+       - send: "{{ data }}"
+       - think: 1
