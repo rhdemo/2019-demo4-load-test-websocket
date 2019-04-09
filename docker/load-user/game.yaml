@@ -8,7 +8,8 @@ scenarios:
     - engine: "ws"
       flow:
        - send:
-          type: "connection" 
+          type: "connection"
+       - think: 2
        - function: "gameMock"
        - send: "{{ data }}"
        - think: 1
