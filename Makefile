@@ -8,11 +8,11 @@ oc_login:
 
 create-image:
 	@echo Create Image
-	cd docker/ && docker build . -t quay.io/redhatdemo/demo4-load-test-websocket:latest
+	cd docker/ && docker build . -t ${IMAGE}
 
 push-image:
 	@echo Push Image
-	docker push quay.io/redhatdemo/demo4-load-test-websocket:reduced
+	docker push ${IMAGE}
 
 
 deploy-load-tester: oc_login
