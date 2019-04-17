@@ -1,13 +1,9 @@
-from node
+from golang
 
-ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
-ENV PATH=$PATH:/home/node/.npm-global/bin
-
-VOLUME /artillery
-
-COPY load-user/ load-user/
-
-WORKDIR load-user/
-
-ENTRYPOINT ["./node_modules/artillery/bin/artillery"]
-CMD ["run", "game.yaml"]
+FROM golang:1.11
+RUN go get -u github.com/sacOO7/gowebsocket
+RUN go get -u github.com/satori/go.uuid
+USER root
+ADD floss.json .
+ADD socket.go .
+CMD go run socket.go

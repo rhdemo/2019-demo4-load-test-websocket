@@ -1,3 +1,4 @@
 .env
 .env-summit
 node_modules/*
+.vscode/
