@@ -17,7 +17,7 @@ push-image:
 
 deploy-load-tester: oc_login
 	@echo Deploying Jobs for Load Test	
-	ansible-playbook openshift/playbook.yml -e users=${USERS} -e namespace=${NAMESPACE} -e duration=${DURATION} -e image=${IMAGE} -e replicas=${REPLICAS} -e ws_address=${SOCKET_ADDRESS} -v
+	ansible-playbook openshift/playbook.yml -e users=${USERS} -e namespace=${NAMESPACE} -e duration=${DURATION} -e image=${IMAGE} -e replicas=${REPLICAS} -e ws_address=${SOCKET_ADDRESS} -e movement=${MOVEMENT} -v
 
 clean-namespace: oc_login
 	@echo Removing Load Test Assets

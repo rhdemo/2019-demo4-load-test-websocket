@@ -7,3 +7,4 @@ data:
   duration: '{{ duration }}'
   socket_address: {{ ws_address }}
   users: '{{ users }}'
+  movement: '{{ movement }}'

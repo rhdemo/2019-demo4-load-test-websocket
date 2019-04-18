@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
 	"time"
@@ -12,12 +13,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var motionPayload []byte
+var playerID string
 
 func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
+	movement := os.Getenv("MOVEMENT")
 	socket := gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
 
 	socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
@@ -30,10 +32,10 @@ func main() {
 
 	socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
 		log.Println("Received message - " + message)
-		playerID := convertJSON(message)
+		message = convertJSON(message)
 
-		if playerID != "" {
-			motionPayload = createPayload(playerID)
+		if message != "" {
+			playerID = message
 		}
 
 	}
@@ -46,22 +48,12 @@ func main() {
 	socket.Connect()
 	socket.SendBinary([]byte(`{ "type": "connection"}`))
 
-	//TODO Add Timer
-	//TODO Separate on Go routines for user
-	//TODO Bad Dances
-	//
-
 	for {
-		if motionPayload != nil {
+		if playerID != "" {
 			time.Sleep(5 * time.Second)
+			motionPayload := createPayload(playerID, movement)
 			socket.SendBinary(motionPayload)
 		}
-		// select {
-		// case <-interrupt:
-		// 	log.Println("interrupt")
-		// 	socket.Close()
-		// 	return
-		// }
 	}
 }
 
@@ -72,9 +64,37 @@ func convertJSON(input string) string {
 	return playerId
 }
 
-func createPayload(playerID string) []byte {
-	// TODO add other types here
-	jsonFile, _ := os.Open("floss.json")
+func createPayload(playerID string, movement string) []byte {
+	var n int
+	moves := []string{
+		"floss.json",
+		"fever.json",
+		"roll.json",
+		"shake.json",
+		"x.json",
+		"bad-move.json",
+	}
+	switch movement {
+	case "FLOSS":
+		n = 0
+	case "FEVER":
+		n = 1
+	case "ROLL":
+		n = 2
+	case "SHAKE":
+		n = 3
+	case "X":
+		n = 4
+	case "BAD":
+		n = 5
+	case "RANDOM":
+		rand.Seed(time.Now().Unix())
+		n = rand.Int() % len(moves)
+	}
+
+	moveSelected := "moves/" + moves[n]
+
+	jsonFile, _ := os.Open(moveSelected)
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	var data map[string]interface{}
