@@ -72,6 +72,7 @@ func createPayload(playerID string, movement string) []byte {
 		"roll.json",
 		"shake.json",
 		"x.json",
+		"circle.json",
 		"bad-move.json",
 	}
 	switch movement {
@@ -85,8 +86,10 @@ func createPayload(playerID string, movement string) []byte {
 		n = 3
 	case "X":
 		n = 4
-	case "BAD":
+	case "CIRCLE":
 		n = 5
+	case "BAD":
+		n = 6
 	case "RANDOM":
 		rand.Seed(time.Now().Unix())
 		n = rand.Int() % len(moves)
