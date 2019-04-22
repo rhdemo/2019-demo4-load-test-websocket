@@ -29,4 +29,10 @@ spec:
               configMapKeyRef:
                 name: load-configmap
                 key: duration
+                
+          - name: MOVEMENT
+            valueFrom:
+              configMapKeyRef:
+                name: load-configmap
+                key: movement
       restartPolicy: OnFailure

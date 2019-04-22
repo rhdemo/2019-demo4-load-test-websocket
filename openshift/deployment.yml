@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: {{ namespace }}
+  name: "demo4-load-test-websocket-{{  999999999999999999999 | random | to_uuid | hash('md5')  }}"
+spec:
+  replicas: {{ replicas }}
+  template:
+    metadata:
+      labels:
+        app: demo4-load-test-websocket
+    spec:
+      containers:
+       - image: {{ image }}
+         imagePullPolicy: Always
+         name: demo4-load-test-websocket
+         env:
+         - name: USERS
+           valueFrom:
+             configMapKeyRef:
+               name: load-configmap
+               key: users
+         - name: SOCKET_ADDRESS
+           valueFrom:
+             configMapKeyRef:
+               name: load-configmap
+               key: socket_address
+         - name: DURATION
+           valueFrom:
+             configMapKeyRef:
+               name: load-configmap
+               key: duration
+
+         - name: MOVEMENT
+           valueFrom:
+             configMapKeyRef:
+               name: load-configmap
+               key: movement
