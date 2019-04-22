@@ -7,54 +7,70 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"strconv"
+	"sync"
 	"time"
 
 	"github.com/sacOO7/gowebsocket"
 	uuid "github.com/satori/go.uuid"
 )
 
-var playerID string
-
 func main() {
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
 
-	movement := os.Getenv("MOVEMENT")
-	socket := gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
+	var wg sync.WaitGroup
+	users, _ := strconv.Atoi(os.Getenv("USERS"))
 
-	socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
-		log.Fatal("Received connect error - ", err)
+	wg.Add(users)
+
+	for clientNumber := 0; clientNumber < users; clientNumber++ {
+		go func(i int) {
+			defer wg.Done()
+			var playerID string
+			interrupt := make(chan os.Signal, 1)
+			signal.Notify(interrupt, os.Interrupt)
+
+			movement := os.Getenv("MOVEMENT")
+			socket := gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
+
+			socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
+				log.Fatal("Received connect error - ", err)
+			}
+
+			socket.OnConnected = func(socket gowebsocket.Socket) {
+				log.Println("Connected to server")
+			}
+
+			socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
+				log.Println("Received message - " + message)
+				message = convertJSON(message)
+
+				if message != "" {
+					playerID = message
+				}
+
+			}
+
+			socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
+				log.Println("Disconnected from server ")
+				return
+			}
+
+			socket.Connect()
+			socket.SendBinary([]byte(`{ "type": "connection"}`))
+
+			for {
+				if playerID != "" {
+					time.Sleep(5 * time.Second)
+					motionPayload := createPayload(playerID, movement, clientNumber)
+					socket.SendBinary(motionPayload)
+				}
+			}
+
+		}(clientNumber)
 	}
 
-	socket.OnConnected = func(socket gowebsocket.Socket) {
-		log.Println("Connected to server")
-	}
+	wg.Wait()
 
-	socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
-		log.Println("Received message - " + message)
-		message = convertJSON(message)
-
-		if message != "" {
-			playerID = message
-		}
-
-	}
-
-	socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
-		log.Println("Disconnected from server ")
-		return
-	}
-
-	socket.Connect()
-	socket.SendBinary([]byte(`{ "type": "connection"}`))
-
-	for {
-		if playerID != "" {
-			time.Sleep(5 * time.Second)
-			motionPayload := createPayload(playerID, movement)
-			socket.SendBinary(motionPayload)
-		}
-	}
 }
 
 func convertJSON(input string) string {
@@ -64,9 +80,9 @@ func convertJSON(input string) string {
 	return playerId
 }
 
-func createPayload(playerID string, movement string) []byte {
+func createPayload(playerID string, movement string, clientNumber int) []byte {
 	var n int
-	moves := []string{	
+	moves := []string{
 		"floss.json",
 		"fever.json",
 		"roll.json",
@@ -92,7 +108,7 @@ func createPayload(playerID string, movement string) []byte {
 		n = 6
 	case "RANDOM":
 		rand.Seed(time.Now().Unix())
-		n = rand.Int() % len(moves)
+		n = (rand.Int() + clientNumber) % len(moves)
 	}
 
 	moveSelected := "moves/" + moves[n]
