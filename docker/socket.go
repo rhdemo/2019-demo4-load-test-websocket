@@ -66,7 +66,7 @@ func convertJSON(input string) string {
 
 func createPayload(playerID string, movement string) []byte {
 	var n int
-	moves := []string{
+	moves := []string{	
 		"floss.json",
 		"fever.json",
 		"roll.json",
