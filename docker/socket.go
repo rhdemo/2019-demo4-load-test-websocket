@@ -42,12 +42,14 @@ func main() {
 
 			socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
 				log.Println("Received message - " + message)
-				message = convertJSON(message)
+				jsonResult := convertJSON(message)
 
-				if message != "" {
-					playerID = message
+				playerId, _ := jsonResult["playerId"].(string)
+				gameState, _ := jsonResult["gameState"].(string)
+
+				if playerId != "" && gameState == "active" {
+					playerID = playerId
 				}
-
 			}
 
 			socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
@@ -73,11 +75,13 @@ func main() {
 
 }
 
-func convertJSON(input string) string {
+func convertJSON(input string) map[string]interface{} {
 	var result map[string]interface{}
 	json.Unmarshal([]byte(input), &result)
-	playerId, _ := result["playerId"].(string)
-	return playerId
+	return result
+	//
+	//
+	// return playerId, gameState
 }
 
 func createPayload(playerID string, movement string, clientNumber int) []byte {
