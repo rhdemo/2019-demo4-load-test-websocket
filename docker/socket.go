@@ -34,16 +34,15 @@ func main() {
 			socket := gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
 
 			socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
-				log.Fatal("Received connect error - ", err)
+				log.Fatal(playerID+" received connect error - ", err)
 			}
 
 			socket.OnConnected = func(socket gowebsocket.Socket) {
-				log.Println("Connected to server")
 				socket.SendBinary([]byte(`{ "type": "connection"}`))
 			}
 
 			socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
-				log.Println("Received message - " + message)
+				log.Println(playerID + " received message - " + message)
 				messageResult := convertJSON(message)
 
 				if messageResult["type"].(string) == "configuration" && messageResult["gameState"].(string) == "active" {
@@ -55,7 +54,7 @@ func main() {
 			}
 
 			socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
-				log.Println("Disconnected from server ")
+				log.Println(playerID + " disconnected to server")
 				return
 			}
 
