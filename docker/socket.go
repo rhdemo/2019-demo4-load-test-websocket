@@ -40,13 +40,6 @@ func main() {
 			socket.OnConnected = func(socket gowebsocket.Socket) {
 				log.Println("Connected to server")
 				socket.SendBinary([]byte(`{ "type": "connection"}`))
-				for {
-					if playerID != "" {
-						time.Sleep(5 * time.Second)
-						motionPayload := createPayload(playerID, movement)
-						socket.SendBinary(motionPayload)
-					}
-				}
 			}
 
 			socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
@@ -65,6 +58,13 @@ func main() {
 			}
 
 			socket.Connect()
+			for {
+				if playerID != "" {
+					time.Sleep(5 * time.Second)
+					motionPayload := createPayload(playerID, movement)
+					socket.SendBinary(motionPayload)
+				}
+			}
 
 		}(clientNumber)
 	}
