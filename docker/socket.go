@@ -48,6 +48,8 @@ func main() {
 
 				if messageResult["type"].(string) == "configuration" && messageResult["gameState"].(string) == "active" {
 					playerID = messageResult["playerId"].(string)
+				} else if messageResult["type"].(string) == "configuration" && messageResult["gameState"].(string) != "active" {
+					playerID = ""
 				}
 
 			}
