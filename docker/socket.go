@@ -26,6 +26,7 @@ func main() {
 		go func(i int) {
 			defer wg.Done()
 			var playerID string
+
 			interrupt := make(chan os.Signal, 1)
 			signal.Notify(interrupt, os.Interrupt)
 
@@ -38,14 +39,22 @@ func main() {
 
 			socket.OnConnected = func(socket gowebsocket.Socket) {
 				log.Println("Connected to server")
+				socket.SendBinary([]byte(`{ "type": "connection"}`))
+				for {
+					if playerID != "" {
+						time.Sleep(5 * time.Second)
+						motionPayload := createPayload(playerID, movement)
+						socket.SendBinary(motionPayload)
+					}
+				}
 			}
 
 			socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
 				log.Println("Received message - " + message)
-				message = convertJSON(message)
+				messageResult := convertJSON(message)
 
-				if message != "" {
-					playerID = message
+				if messageResult["type"].(string) == "configuration" && messageResult["gameState"].(string) == "active" {
+					playerID = messageResult["playerId"].(string)
 				}
 
 			}
@@ -56,15 +65,6 @@ func main() {
 			}
 
 			socket.Connect()
-			socket.SendBinary([]byte(`{ "type": "connection"}`))
-
-			for {
-				if playerID != "" {
-					time.Sleep(5 * time.Second)
-					motionPayload := createPayload(playerID, movement, clientNumber)
-					socket.SendBinary(motionPayload)
-				}
-			}
 
 		}(clientNumber)
 	}
@@ -73,14 +73,13 @@ func main() {
 
 }
 
-func convertJSON(input string) string {
+func convertJSON(input string) map[string]interface{} {
 	var result map[string]interface{}
 	json.Unmarshal([]byte(input), &result)
-	playerId, _ := result["playerId"].(string)
-	return playerId
+	return result
 }
 
-func createPayload(playerID string, movement string, clientNumber int) []byte {
+func createPayload(playerID string, movement string) []byte {
 	var n int
 	moves := []string{
 		"floss.json",
@@ -108,7 +107,7 @@ func createPayload(playerID string, movement string, clientNumber int) []byte {
 		n = 6
 	case "RANDOM":
 		rand.Seed(time.Now().Unix())
-		n = (rand.Int() + clientNumber) % len(moves)
+		n = rand.Int() % len(moves)
 	}
 
 	moveSelected := "moves/" + moves[n]
