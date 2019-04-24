@@ -54,6 +54,7 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 	u.socket.OnConnected = func(socket gowebsocket.Socket) {
 		log.Println(strconv.Itoa(clientNumber) + " connected")
+		u.socket.SendBinary([]byte(`{ "type": "connection"}`))
 	}
 
 	u.socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
@@ -61,17 +62,17 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 		if messageResult["type"].(string) == "configuration" {
 			u.playerID = messageResult["playerId"].(string)
+			u.gameID = messageResult["gameId"].(string)
 			log.Println(strconv.Itoa(clientNumber) + " became " + u.playerID)
 		} else if messageResult["type"].(string) == "motion_feedback" {
 			log.Println(u.playerID + " received message - " + message)
 		}
 	}
 	u.socket.Connect()
-	u.socket.SendBinary([]byte(`{ "type": "connection"}`))
 
 	for {
 		time.Sleep(5 * time.Second)
-		if u.playerID != "" {
+		if u.playerID != "" && u.socket.IsConnected == true {
 			motionPayload := createPayload(u.playerID, movement)
 			u.socket.SendBinary(motionPayload)
 		}
