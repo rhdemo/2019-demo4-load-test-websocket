@@ -2,76 +2,78 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
-	"os/signal"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/sacOO7/gowebsocket"
+
 	uuid "github.com/satori/go.uuid"
 )
 
+type user struct {
+	playerID string
+	gameID   string
+	socket   gowebsocket.Socket
+}
+
+var exit = make(chan bool)
+
 func main() {
-
-	var wg sync.WaitGroup
 	users, _ := strconv.Atoi(os.Getenv("USERS"))
+	movement := os.Getenv("MOVEMENT")
+	socketAddress := os.Getenv("SOCKET_ADDRESS")
 
-	wg.Add(users)
+	for clientNumber := 1; clientNumber <= users; clientNumber++ {
+		go handleSocket(clientNumber, socketAddress, movement)
+	}
+	<-exit // This blocks until the exit channel receives some input
+	fmt.Println("Done.")
 
-	for clientNumber := 0; clientNumber < users; clientNumber++ {
-		go func(i int) {
-			defer wg.Done()
-			var playerID string
+}
 
-			interrupt := make(chan os.Signal, 1)
-			signal.Notify(interrupt, os.Interrupt)
+func handleSocket(clientNumber int, socketAddress string, movement string) {
 
-			movement := os.Getenv("MOVEMENT")
-			socket := gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
+	socket := gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
 
-			socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
-				log.Fatal(playerID+" received connect error - ", err)
-			}
+	u := user{playerID: strconv.Itoa(clientNumber), gameID: "", socket: socket}
 
-			socket.OnConnected = func(socket gowebsocket.Socket) {
-				socket.SendBinary([]byte(`{ "type": "connection"}`))
-			}
-
-			socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
-				log.Println(playerID + " received message - " + message)
-				messageResult := convertJSON(message)
-
-				if messageResult["type"].(string) == "configuration" && messageResult["gameState"].(string) == "active" {
-					playerID = messageResult["playerId"].(string)
-				} else if messageResult["type"].(string) == "configuration" && messageResult["gameState"].(string) != "active" {
-					playerID = ""
-				}
-
-			}
-
-			socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
-				log.Println(playerID + " disconnected to server")
-				return
-			}
-
-			socket.Connect()
-			for {
-				if playerID != "" {
-					time.Sleep(5 * time.Second)
-					motionPayload := createPayload(playerID, movement)
-					socket.SendBinary(motionPayload)
-				}
-			}
-
-		}(clientNumber)
+	u.socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
+		log.Fatal(u.playerID+" received connect error - ", err)
 	}
 
-	wg.Wait()
+	u.socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
+		log.Fatal(u.playerID+" disconnected - ", err)
+	}
 
+	u.socket.OnConnected = func(socket gowebsocket.Socket) {
+		log.Println(strconv.Itoa(clientNumber) + " connected")
+	}
+
+	u.socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
+		messageResult := convertJSON(message)
+
+		if messageResult["type"].(string) == "configuration" {
+			u.playerID = messageResult["playerId"].(string)
+			log.Println(strconv.Itoa(clientNumber) + "became " + u.playerID)
+		} else {
+			log.Println(u.playerID + " received message - " + message)
+		}
+	}
+	u.socket.Connect()
+	u.socket.SendBinary([]byte(`{ "type": "connection"}`))
+
+	for {
+		time.Sleep(5 * time.Second)
+		motionPayload := createPayload(u.playerID, movement)
+		u.socket.SendBinary(motionPayload)
+	}
+	// This is will not happen because of time infinite loop (#TODO change to duration)
+	exit <- true
 }
 
 func convertJSON(input string) map[string]interface{} {
