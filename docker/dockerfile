@@ -1,5 +1,3 @@
-from golang
-
 FROM golang:1.11
 RUN go get -u github.com/sacOO7/gowebsocket
 RUN go get -u github.com/satori/go.uuid
