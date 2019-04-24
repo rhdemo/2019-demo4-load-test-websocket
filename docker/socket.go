@@ -48,8 +48,14 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 	u.socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
 		log.Fatal(u.playerID+" disconnected - ", err)
-		reconnectPayload := `{ "type": "connection"` + `gameId:` + u.gameID + `playerId:` + u.playerID + `}`
-		u.socket.SendBinary([]byte(reconnectPayload))
+		for {
+			time.Sleep(2 * time.Second)
+			reconnectPayload := `{ "type": "connection"` + `gameId:` + u.gameID + `playerId:` + u.playerID + `}`
+			u.socket = gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
+			u.socket.SendBinary([]byte(reconnectPayload))
+			break
+		}
+
 	}
 
 	u.socket.OnConnected = func(socket gowebsocket.Socket) {
