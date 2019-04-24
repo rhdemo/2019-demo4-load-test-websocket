@@ -40,7 +40,7 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 	socket := gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
 
-	u := user{playerID: strconv.Itoa(clientNumber), gameID: "", socket: socket}
+	u := user{playerID: "", gameID: "", socket: socket}
 
 	u.socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
 		log.Fatal(u.playerID+" received connect error - ", err)
@@ -61,8 +61,8 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 		if messageResult["type"].(string) == "configuration" {
 			u.playerID = messageResult["playerId"].(string)
-			log.Println(strconv.Itoa(clientNumber) + "became " + u.playerID)
-		} else {
+			log.Println(strconv.Itoa(clientNumber) + " became " + u.playerID)
+		} else if messageResult["type"].(string) == "motion_feedback" {
 			log.Println(u.playerID + " received message - " + message)
 		}
 	}
@@ -71,8 +71,10 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 	for {
 		time.Sleep(5 * time.Second)
-		motionPayload := createPayload(u.playerID, movement)
-		u.socket.SendBinary(motionPayload)
+		if u.playerID != "" {
+			motionPayload := createPayload(u.playerID, movement)
+			u.socket.SendBinary(motionPayload)
+		}
 	}
 	// This is will not happen because of time infinite loop (#TODO change to duration)
 	exit <- true
