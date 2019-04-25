@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   namespace: {{ namespace }}
-  name: "demo4-load-test-websocket-{{  999999999999999999999 | random | to_uuid | hash('md5')  }}"
+  name: "demo4-load-test-websocket"
 spec:
   replicas: {{ replicas }}
   template:
