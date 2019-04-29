@@ -1,4 +1,4 @@
-## RH Summit 2019 - Load Tester on Web Game (Frontend)
+## RH Summit 2019 - Load Tester on Game (E2E)
 
 This repo contains load test for testing the websocket.
 
@@ -22,12 +22,12 @@ make oc_login
 After create an .env file, you can create the project with the following command on openshift:
 
 ```bash
-deploy-load-test
+make deploy-load-test
 ```
 
 ## Removing 
 You can remove with the follwing command: 
 
 ```bash
-remove-load-test
+make remove-load-test
 ```

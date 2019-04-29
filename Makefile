@@ -22,9 +22,8 @@ deploy-load-tester: oc_login
 clean-namespace: oc_login
 	@echo Removing Load Test Assets
 	oc delete pods all -n ${NAMESPACE} --ignore-not-found=true
-	oc delete job --all -n ${NAMESPACE} --ignore-not-found=true
 	oc delete configmap load-configmap -n ${NAMESPACE} --ignore-not-found=true
 
-delete-namespace: oc_login
-	@echo Removing Load Test Namespaces
+remove-load-test: oc_login
+	@echo Removing Load Test Namespace
 	oc delete project ${NAMESPACE} --ignore-not-found=true
