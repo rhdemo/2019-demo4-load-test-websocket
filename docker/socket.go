@@ -100,6 +100,7 @@ func reconnect(u user) {
 		time.Sleep(2 * time.Second)
 		reconnectPayload := `{ "type": "connection"` + `gameId:` + u.gameID + `playerId:` + u.playerID + `}`
 		u.socket = gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
+		u.socket.Connect()
 		u.socket.SendBinary([]byte(reconnectPayload))
 		break
 	}
