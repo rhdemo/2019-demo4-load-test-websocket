@@ -76,7 +76,7 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 		if u.playerID != "" && u.socket.IsConnected == true {
 			selectedMovement, movementLog := selectRandomMovement(movement)
 			motionPayload := createPayload(u.playerID, selectedMovement)
-			log.Println(u.playerID + "is about to send a " + movementLog)
+			log.Println(u.playerID + " is sending a " + movementLog)
 			u.socket.SendBinary(motionPayload)
 		} else if u.socket.IsConnected == false {
 			reconnect(u)
