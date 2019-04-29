@@ -55,7 +55,9 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 	u.socket.OnConnected = func(socket gowebsocket.Socket) {
 		log.Println(strconv.Itoa(clientNumber) + " connected")
-		u.socket.SendBinary([]byte(`{ "type": "connection"}`))
+		if u.socket.IsConnected == true {
+			u.socket.SendBinary([]byte(`{ "type": "connection"}`))
+		}
 	}
 
 	u.socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {

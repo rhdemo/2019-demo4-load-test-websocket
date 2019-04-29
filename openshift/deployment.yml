@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
        - image: {{ image }}
-         imagePullPolicy: IfNotPresent
+         imagePullPolicy: Always
          name: demo4-load-test-websocket
          env:
          - name: USERS
