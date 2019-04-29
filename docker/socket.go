@@ -7,7 +7,9 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sacOO7/gowebsocket"
@@ -48,14 +50,7 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 
 	u.socket.OnDisconnected = func(err error, socket gowebsocket.Socket) {
 		log.Println(u.playerID+" disconnected - ", err)
-		for {
-			time.Sleep(2 * time.Second)
-			reconnectPayload := `{ "type": "connection"` + `gameId:` + u.gameID + `playerId:` + u.playerID + `}`
-			u.socket = gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
-			u.socket.SendBinary([]byte(reconnectPayload))
-			break
-		}
-
+		reconnect(u)
 	}
 
 	u.socket.OnConnected = func(socket gowebsocket.Socket) {
@@ -79,8 +74,12 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 	for {
 		time.Sleep(5 * time.Second)
 		if u.playerID != "" && u.socket.IsConnected == true {
-			motionPayload := createPayload(u.playerID, movement)
+			selectedMovement, movementLog := selectRandomMovement(movement)
+			motionPayload := createPayload(u.playerID, selectedMovement)
+			log.Println(u.playerID + "is about to send a " + movementLog)
 			u.socket.SendBinary(motionPayload)
+		} else if u.socket.IsConnected == false {
+			reconnect(u)
 		}
 	}
 	// This is will not happen because of time infinite loop (#TODO change to duration)
@@ -93,7 +92,18 @@ func convertJSON(input string) map[string]interface{} {
 	return result
 }
 
-func createPayload(playerID string, movement string) []byte {
+func reconnect(u user) {
+	for {
+		log.Println("User: " + u.playerID + " is reconnecting")
+		time.Sleep(2 * time.Second)
+		reconnectPayload := `{ "type": "connection"` + `gameId:` + u.gameID + `playerId:` + u.playerID + `}`
+		u.socket = gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
+		u.socket.SendBinary([]byte(reconnectPayload))
+		break
+	}
+}
+
+func selectRandomMovement(movement string) (string, string) {
 	var n int
 	moves := []string{
 		"floss.json",
@@ -120,13 +130,16 @@ func createPayload(playerID string, movement string) []byte {
 	case "BAD":
 		n = 6
 	case "RANDOM":
-		rand.Seed(time.Now().Unix())
 		n = rand.Int() % len(moves)
 	}
 
 	moveSelected := "moves/" + moves[n]
+	movelog := strings.TrimSuffix(moves[n], filepath.Ext(moves[n]))
+	return moveSelected, movelog
+}
 
-	jsonFile, _ := os.Open(moveSelected)
+func createPayload(playerID string, movement string) []byte {
+	jsonFile, _ := os.Open(movement)
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	var data map[string]interface{}
