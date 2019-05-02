@@ -24,6 +24,6 @@ clean-namespace: oc_login
 	oc delete pods all -n ${NAMESPACE} --ignore-not-found=true
 	oc delete configmap load-configmap -n ${NAMESPACE} --ignore-not-found=true
 
-remove-load-test: oc_login
+remove-load-tester: oc_login
 	@echo Removing Load Test Namespace
 	oc delete project ${NAMESPACE} --ignore-not-found=true

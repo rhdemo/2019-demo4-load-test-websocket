@@ -22,12 +22,12 @@ make oc_login
 After create an .env file, you can create the project with the following command on openshift:
 
 ```bash
-make deploy-load-test
+make deploy-load-tester
 ```
 
 ## Removing 
 You can remove with the follwing command: 
 
 ```bash
-make remove-load-test
+make remove-load-tester
 ```
