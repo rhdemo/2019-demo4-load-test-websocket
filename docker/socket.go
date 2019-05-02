@@ -80,8 +80,6 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 			motionPayload := createPayload(u.playerID, selectedMovement)
 			log.Println(u.playerID + " is sending a " + movementLog)
 			u.socket.SendBinary(motionPayload)
-		} else if u.socket.IsConnected == false {
-			reconnect(u)
 		}
 	}
 	// This is will not happen because of time infinite loop (#TODO change to duration)
