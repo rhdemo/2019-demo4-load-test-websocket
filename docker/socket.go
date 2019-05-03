@@ -126,11 +126,13 @@ func selectRandomMovement(movement string) (string, string) {
 	case "SHAKE":
 		n = 3
 	case "X":
-		n = 4
+		n = 4		
 	case "CIRCLE":
 		n = 5
 	case "BAD":
 		n = 6
+	case "NO-BAD-DANCE":
+		n = rand.Int() % (len(moves)-1)
 	case "RANDOM":
 		n = rand.Int() % len(moves)
 	}
