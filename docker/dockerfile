@@ -2,6 +2,6 @@ FROM golang:1.11
 RUN go get -u github.com/sacOO7/gowebsocket
 RUN go get -u github.com/satori/go.uuid
 USER root
-COPY moves/ ./moves
+COPY guesses/ ./guesses
 ADD socket.go .
 CMD go run socket.go

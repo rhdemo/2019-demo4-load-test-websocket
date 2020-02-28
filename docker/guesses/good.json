@@ -1,0 +1,29 @@
+{
+  "type": "guess",
+  "itemId": 0,
+  "choices": [
+    9,
+    null,
+    0,
+    5,
+    0,
+    1
+  ],
+  "answers": [
+    {
+      "format": "number",
+      "number": 1,
+      "from": 1,
+      "result": null
+    },
+    {
+      "format": "decimal"
+    },
+    {
+      "format": "number"
+    },
+    {
+      "format": "number"
+    }
+  ]
+}
