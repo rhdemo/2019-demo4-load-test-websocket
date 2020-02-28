@@ -4,7 +4,7 @@ export $(shell sed 's/=.*//' ${ENV_FILE})
 
 
 oc_login:
-	${OC} login ${OC_URL} -u ${OC_USER} -p ${OC_PASSWORD} --insecure-skip-tls-verify=true
+	oc login ${OC_URL} -u ${OC_USER} -p ${OC_PASSWORD} --insecure-skip-tls-verify=true
 
 create-image:
 	@echo Create Image

@@ -1,19 +1,22 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: {{ namespace }}
-  name: "demo4-load-test-websocket"
+  name: "demo2020-load-test-websocket"
 spec:
   replicas: {{ replicas }}
+  selector:
+   matchLabels:
+     app: demo2020-load-test-websocket
   template:
     metadata:
       labels:
-        app: demo4-load-test-websocket
+        app: demo2020-load-test-websocket
     spec:
       containers:
        - image: {{ image }}
-         imagePullPolicy: IfNotPresent
-         name: demo4-load-test-websocket
+         imagePullPolicy: Always
+         name: demo2020-load-test-websocket
          env:
          - name: USERS
            valueFrom:
