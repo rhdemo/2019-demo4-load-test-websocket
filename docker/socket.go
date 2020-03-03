@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/sacOO7/gowebsocket"
-
 	// uuid "github.com/satori/go.uuid"
 )
 
@@ -55,7 +54,7 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 	}
 
 	u.socket.OnConnected = func(socket gowebsocket.Socket) {
-		log.Println(strconv.Itoa(clientNumber) + " connected")
+		log.Println("Bot " + strconv.Itoa(clientNumber) + " connected")
 		if u.socket.IsConnected == true {
 			u.socket.SendBinary([]byte(`{ "type": "init", "bot": "true"}`))
 		}
@@ -64,13 +63,16 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 	u.socket.OnTextMessage = func(message string, socket gowebsocket.Socket) {
 		messageResult := convertJSON(message)
 
-		if messageResult["type"].(string) == "player-configuration" {
+		if messageResult["type"].(string) == "player-configuration" && u.playerID == "" {
 			player := messageResult["player"].(map[string]interface{})
 			u.playerID = player["id"].(string)
 			u.gameID = player["gameId"].(string)
+			log.Println("Bot " + strconv.Itoa(clientNumber) + " became " + u.playerID)
+		} else if messageResult["type"].(string) == "player-configuration" && u.playerID != "" {
+			player := messageResult["player"].(map[string]interface{})
 			u.score = player["score"].(float64)
-			log.Println(strconv.Itoa(clientNumber) + " became " + u.playerID)
-			log.Println( u.playerID + " score: " + fmt.Sprintf("%f", u.score)
+			log.Println(u.playerID + " score: " + fmt.Sprintf("%f", u.score))
+			// log.Println(messageResult)
 		}
 	}
 	u.socket.Connect()
@@ -79,8 +81,8 @@ func handleSocket(clientNumber int, socketAddress string, movement string) {
 		time.Sleep(5 * time.Second)
 		if u.playerID != "" && u.socket.IsConnected == true {
 			selectedMovement, movementLog := selectRandomMovement(movement)
-			motionPayload := createPayload(u.playerID, selectedMovement)
-			log.Println(u.playerID + " is sending a " + movementLog)
+			motionPayload := createPayload(u.playerID, u.gameID, selectedMovement)
+			log.Println(u.playerID + " is sending a " + movementLog + " guess")
 			u.socket.SendBinary(motionPayload)
 		}
 	}
@@ -98,7 +100,6 @@ func reconnect(u user) {
 	for {
 		log.Println("User: " + u.playerID + " is reconnecting")
 		time.Sleep(2 * time.Second)
-
 		reconnectPayload := fmt.Sprintf(`{ "type": "init", "bot": "true", "gameId": "%s", "playerId": "%s" }`, u.playerID, u.gameID)
 		u.socket = gowebsocket.New(os.Getenv("SOCKET_ADDRESS"))
 		u.socket.Connect()
@@ -129,7 +130,7 @@ func selectRandomMovement(movement string) (string, string) {
 	return moveSelected, movelog
 }
 
-func createPayload(playerID string, movement string) []byte {
+func createPayload(playerID string, gameID string, movement string) []byte {
 
 
 	jsonFile, _ := os.Open(movement)
@@ -138,6 +139,7 @@ func createPayload(playerID string, movement string) []byte {
 	var data map[string]interface{}
 	json.Unmarshal([]byte(byteValue), &data)
 	data["playerId"] = playerID
+	data["gameId"] = gameID
 	out, _ := json.Marshal(data)
 	return out
 }
